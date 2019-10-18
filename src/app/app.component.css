@@ -1,0 +1,17 @@
+.menu{
+    height: 4em;
+    z-index: 999;
+    -webkit-box-shadow: 0px 7px 4px 0px rgba(50, 50, 50, 0.47);
+    -moz-box-shadow:    0px 7px 4px 0px rgba(50, 50, 50, 0.47);
+    box-shadow:         0px 7px 4px 0px rgba(50, 50, 50, 0.47);
+}
+
+.principal{
+    background-color: #f9f9f9;
+    height: 100%;
+    text-align: -webkit-center;
+}
+
+.alerts{
+    width: 50%;
+}

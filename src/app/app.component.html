@@ -1,9 +1,25 @@
-
-<h1>Primeiro componente</h1>
-
-<input type="file" accept=".txt" (input)="tratarfile($event.target.files[0])" id="teste"/>
-<h2 *ngIf="bool_enviado">Enviado</h2> 
-
-
-
-
+<div class="col-md-12 menu">
+    <h2>Telecomunicações Co.</h2>
+</div>
+<div class="col-md-12 principal">
+    <div class="col-md-8 conteudo">
+        <br> <br>
+        <h1>Relatório diário de ligações</h1>
+        <br>
+        <h3>Insira o arquivo para gerar automaticamente o relatório.</h3>
+        <input hidden type="file" accept=".txt" (change)="tratarfile($event.target.files[0])" id="files" />
+        <br>
+        <button [hidden]="!isWaiting" type="button" class="btn btn-secondary animationIf"
+            (click)="openFileManager()">Inserir Arquivo</button>
+        <div [hidden]="!isProcessando" class="spinner-border animationIf" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <br> <br>
+        <div class="alert alert-danger alerts" *ngIf="hadError" role="alert">
+            O arquivo está inválido ou fora de padrão do sistema. Por favor, verifique e envie novamente.
+        </div>
+        <div class="alert alert-success alerts" *ngIf="hadDone" role="alert">
+            O relatório foi gerado com sucesso, você pode verificar nos seus downloads. :)
+        </div>
+    </div>
+</div>
