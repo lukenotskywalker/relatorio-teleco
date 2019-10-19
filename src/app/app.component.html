@@ -9,16 +9,16 @@
         <h3>Insira o arquivo para gerar automaticamente o relatório.</h3>
         <input hidden type="file" accept=".txt" (change)="tratarfile($event.target.files[0])" id="files" />
         <br>
-        <button [hidden]="!isWaiting" type="button" class="btn btn-secondary animationIf"
+        <button [hidden]="!Waiting" type="button" class="btn btn-secondary"
             (click)="openFileManager()">Inserir Arquivo</button>
-        <div [hidden]="!isProcessando" class="spinner-border animationIf" role="status">
+        <div [hidden]="!Processando" class="spinner-border" role="status">
             <span class="sr-only">Loading...</span>
         </div>
         <br> <br>
-        <div class="alert alert-danger alerts" *ngIf="hadError" role="alert">
+        <div class="alert alert-danger alerts" *ngIf="Error" role="alert">
             O arquivo está inválido ou fora de padrão do sistema. Por favor, verifique e envie novamente.
         </div>
-        <div class="alert alert-success alerts" *ngIf="hadDone" role="alert">
+        <div class="alert alert-success alerts" *ngIf="Done" role="alert">
             O relatório foi gerado com sucesso, você pode verificar nos seus downloads. :)
         </div>
     </div>

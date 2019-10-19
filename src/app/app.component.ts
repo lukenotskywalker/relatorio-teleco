@@ -6,87 +6,87 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'relatorio-teleco';
-  text: string;
-  isProcessando = false;
-  isWaiting = true;
-  hadError = false;
-  hadDone = false;
+  title = 'Relatório diário de Clientes';
+  Processando = false;
+  Waiting = true;
+  Error = false;
+  Done = false;
 
   openFileManager() {
     document.getElementById('files').click();
   }
 
   async tratarfile(objeto) {
-    //Verificações Primarias
 
-    if (objeto.type != "text/plain")
-      //To-Do Verificação de formato
-
-      objeto = new Blob();
-    this.hadError = false;
-    this.hadDone = false;
-    this.isProcessando = true;
-    this.isWaiting = false;
+    //Variaveis de controle
+    objeto = new Blob();
+    this.Error = false;
+    this.Done = false;
+    this.Processando = true;
+    this.Waiting = false;
     var text = await objeto.text();
 
-    var jsonformat = this.convertToJSON(text);
+    //Conversão do arquivo para o objeto
+    var objFormatado = this.converterObjeto(text);
 
-    //Pego todos os telefones (distintos) de origem, seus ddds e calculo a média.
-    //Depois, aproveito o objeto de telefones distintos para contagem de clientes.
+    //Coleciono os dados para criar o documento.
     try {
-      var telefonesOrigem = await this.contaTelefonesOrigem(jsonformat);
-      var relacaoMediaDDD = await this.contaMediaDddDuracao(jsonformat);
-      var contagemClientesDeOutroDDD = await this.contaRegistrosOutroDDD(jsonformat);
+      var telefonesOrigem = await this.contaTelefonesOrigem(objFormatado);
+      var relacaoMediaDDD = await this.contaMediaDddDuracao(objFormatado);
+      var contagemClientesDeOutroDDD = await this.contaRegistrosOutroDDD(objFormatado);
     } catch {
-      this.hadError = true;
-      this.isProcessando = false;
-      this.isWaiting = true;
+      this.Error = true;
+      this.Processando = false;
+      this.Waiting = true;
       return false;
     }
-    var textfile = "TOTAL_CLIENTES_LIGARAM:" + telefonesOrigem + "\nDURACAO_MEDIA:"
-    relacaoMediaDDD.forEach(e => {
-      textfile += "\n  " + e.DDD + ": " + e.Media;
-    });
-    textfile += "\nTOTAL_CLIENTES_LIGARAM_OUTRO_DDD:" + contagemClientesDeOutroDDD;
 
-    var archive = new Blob([textfile], { type: 'plain/text' });
-    var name = "Relatório.txt";
-    var objUrl = URL.createObjectURL(archive);
+    //Crio o documento e faço o download do mesmo.
+    var ArqRetorno = "TOTAL_CLIENTES_LIGARAM:" + telefonesOrigem + "\nDURACAO_MEDIA:"
+    relacaoMediaDDD.forEach(e => {
+      ArqRetorno += "\n  " + e.DDD + ": " + e.Media;
+    });
+    ArqRetorno += "\nTOTAL_CLIENTES_LIGARAM_OUTRO_DDD:" + contagemClientesDeOutroDDD;
+
+    var arq = new Blob([ArqRetorno], { type: 'plain/text' });
+    var nome = "Relatório.txt";
+    var objUrl = URL.createObjectURL(arq);
     var a = document.createElement('a') as HTMLAnchorElement;
 
     a.href = objUrl;
-    a.download = name;
+    a.download = nome;
     document.body.appendChild(a);
     a.click();
 
     document.body.removeChild(a);
     URL.revokeObjectURL(objUrl);
 
-
+    // timeout de 0,5 segundos para baixar e exibir o aviso de completo.
     var that = this;
     setTimeout(function () {
-      that.isProcessando = false;
-      that.isWaiting = true;
-      that.hadDone = true;
+      that.Processando = false;
+      that.Waiting = true;
+      that.Done = true;
     }, 500);
   }
 
   async contaRegistrosOutroDDD(object) {
-    var distinctddd = object.filter(d => d.TelefoneOrigem.substring(0, 2) != d.TelefoneDestino.substring(0, 2));
-    //Agora, filtro os duplicatas em um DDD e retorno a contagem.
-    return new Set(distinctddd.map(x => x.TelefoneOrigem)).size;
+    //Crio um Set com os DDDs existentes e retorno a contagem.
+    return new Set(object.map(x => x.TelefoneOrigem.substring(0, 2))).size;
 
   }
 
   async contaTelefonesOrigem(object) {
+    //Crio um Set com os telefones de origem e retorno a contagem.
     return new Set(object.map(x => x.TelefoneOrigem)).size;
   }
 
   async contaMediaDddDuracao(object) {
-    var ddsDeOrigem = new Set(object.map(x => x.TelefoneOrigem.substring(0, 2)));
+    //Reuno os DDDs para um foreach
+    var ddsDeOrigem = Array.from(new Set(object.map(x => x.TelefoneOrigem.substring(0, 2)))).sort();
     var relacaoDddMinuto = [];
     ddsDeOrigem.forEach(dd => {
+      //Seleciono os objetos que possuem esse DDD para telefone de origem e crio o objeto com o DDD e a média de segundos desse DDD
       var relation = object.filter(r => r.TelefoneOrigem.substring(0, 2) == dd);
       var soma = 0;
       relation.forEach(re => {
@@ -98,7 +98,7 @@ export class AppComponent {
     return relacaoDddMinuto;
   }
 
-  convertToJSON(text) {
+  converterObjeto(text) {
 
     var retorno = [];
     var linhas = text.split("\n");
